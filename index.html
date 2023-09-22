@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+   
+<head>
+    <meta charset="utf-8">
+    <title>YouTube Video Redirect</title>
+</head>
+
+<body>
+
+    <script>
+        // Function to redirect to the YouTube app or web URL based on the device type
+        //http://127.0.0.1:5500/index.html?youtubeLink=https://youtu.be/TGFvOG09AjY?si=MPjduEPKiIxlWGIw
+        function redirectToYouTubeAppOrWeb() {
+            var youtubeLink = getParameterByName("youtubeLink");
+
+            // Check if the parameter contains a valid YouTube link
+            if (isValidYouTubeLink(youtubeLink)) {
+                // Determine the user's device type
+                var userAgent = navigator.userAgent;
+                var isWindows = userAgent.includes("Windows");
+                var isMac = userAgent.includes("Macintosh");
+                var isAndroid = userAgent.includes("Android");
+                var isiPhone = userAgent.includes("iPhone");
+                var isiPad = userAgent.includes("iPad");
+
+                // Create the deep link or web URL based on the device type
+                var url;
+                if (isiPhone || isiPad) {
+                    // iOS devices
+                    url = "youtube://video/" + getVideoId(youtubeLink);
+                } else if (isAndroid) {
+                    // Android devices
+                    url = "intent://youtu.be/" + getVideoId(youtubeLink) + "#Intent;scheme=http;package=com.google.android.youtube;end";
+                } else {
+                    // Windows, Mac, or other devices (fallback to web)
+                    url = youtubeLink;
+                }
+
+                // Redirect to the YouTube app or web URL
+                window.location.href = url;
+            } else {
+                alert("Invalid YouTube video link.");
+            }
+        }
+
+        function isValidYouTubeLink(link) {
+            // Regular expression to check if the link matches a YouTube video URL pattern
+            var youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+            return youtubeRegex.test(link);
+        }
+
+        function getVideoId(link) {
+            // Extract the video ID from the YouTube link
+            var videoId;
+            if (link.indexOf("youtu.be/") !== -1) {
+                videoId = link.split("youtu.be/")[1].split("?")[0];
+            } else {
+                videoId = link.split("v=")[1].split("&")[0];
+            }
+            return videoId;
+        }
+
+        // Function to get URL parameter by name
+        function getParameterByName(name) {
+            var url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        // Check for the 'youtubeLink' parameter and redirect
+        var youtubeLinkParam = getParameterByName("youtubeLink");
+        if (youtubeLinkParam) {
+            redirectToYouTubeAppOrWeb();
+        }
+    </script>
+
+</body>
+
+</html>
+
+
+
+
+
